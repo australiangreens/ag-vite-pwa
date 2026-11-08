@@ -1,0 +1,81 @@
+# Checks only. This package is published by hand: see PUBLISHING.md. Nothing here
+# deploys or publishes.
+#
+#   install -> check (tsc + tests) | build (+ pack dry run)
+#
+# Same install/artifact shape as the *-frontend pipelines: the deps step restores/saves
+# node_modules in the S3 cache and every other step gets it from the artifact it uploads.
+cache: &cache
+  key: "v1-cache-{{ runner.os }}-{{ checksum 'pnpm-lock.yaml' }}"
+  backend: s3
+  pr: true # Restore/save cache on PR/feature branch builds too
+  s3:
+    bucket: greenkite-cache
+    compress: true
+  paths:
+    - node_modules
+steps:
+  - label: ":package: install"
+    commands:
+      - "npm install -g pnpm@10.34.7"
+      - "cd /app && pnpm install --frozen-lockfile"
+    key: "deps"
+    plugins:
+      - nienbo/cache#v2.4.21: *cache
+      - artifacts#v1.9.4:
+          upload: "node_modules"
+          compressed: node_modules.tgz
+      - docker-compose#v5.12.1:
+          run: ts-build
+          config: docker-compose.yml
+          env:
+            # `prepare` runs husky on install; there are no git hooks to install in CI
+            - HUSKY=0
+    agents:
+      queue: elastic
+      arch: arm64
+
+  - label: ":javascript: check"
+    commands:
+      - "npm install -g pnpm@10.34.7"
+      - /app/.buildkite/check.sh
+    depends_on: "deps"
+    retry:
+      automatic:
+        - exit_status: "*"
+          limit: 2
+    plugins:
+      - artifacts#v1.9.4:
+          download: "node_modules"
+          compressed: node_modules.tgz
+      - docker-compose#v5.12.1:
+          run: ts-build
+          config: docker-compose.yml
+          env:
+            - CI=true
+            - HUSKY=0
+    agents:
+      queue: elastic
+      arch: arm64
+
+  - label: ":javascript: build"
+    commands:
+      - "npm install -g pnpm@10.34.7"
+      - /app/.buildkite/build.sh
+    depends_on: "deps"
+    retry:
+      automatic:
+        - exit_status: "*"
+          limit: 2
+    plugins:
+      - artifacts#v1.9.4:
+          download: "node_modules"
+          compressed: node_modules.tgz
+      - docker-compose#v5.12.1:
+          run: ts-build
+          config: docker-compose.yml
+          env:
+            - HUSKY=0
+    agents:
+      queue: elastic
+      arch: arm64

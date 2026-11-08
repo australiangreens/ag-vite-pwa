@@ -1,0 +1,6 @@
+if pnpm --silent precommit; then
+    exit 0
+else
+    echo "Error: pre-commit checks failed"
+    exit 1
+fi

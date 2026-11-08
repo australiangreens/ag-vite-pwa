@@ -1,0 +1,9 @@
+# This is used in the CI pipeline
+
+version: "3"
+
+services:
+  ts-build:
+    image: node:24
+    volumes:
+      - $PWD:/app

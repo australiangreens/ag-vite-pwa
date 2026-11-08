@@ -1,0 +1,6 @@
+if pnpm --silent prepush; then
+    exit 0
+else
+    echo "Error: pre-push checks failed"
+    exit 1
+fi
