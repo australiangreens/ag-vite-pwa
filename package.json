@@ -45,7 +45,7 @@
     "vite": "^8.0.0",
     "vitest": "^4.1.11"
   },
-  "packageManager": "pnpm@10.34.7",
+  "packageManager": "pnpm@10.34.9",
   "homepage": "https://github.com/australiangreens/ag-vite-pwa#readme",
   "repository": {
     "type": "git",

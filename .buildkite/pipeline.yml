@@ -17,7 +17,7 @@ cache: &cache
 steps:
   - label: ":package: install"
     commands:
-      - "npm install -g pnpm@10.34.7"
+      - "/app/.buildkite/install-pnpm.sh"
       - "cd /app && pnpm install --frozen-lockfile"
     key: "deps"
     plugins:
@@ -37,7 +37,7 @@ steps:
 
   - label: ":javascript: check"
     commands:
-      - "npm install -g pnpm@10.34.7"
+      - "/app/.buildkite/install-pnpm.sh"
       - /app/.buildkite/check.sh
     depends_on: "deps"
     retry:
@@ -60,7 +60,7 @@ steps:
 
   - label: ":javascript: build"
     commands:
-      - "npm install -g pnpm@10.34.7"
+      - "/app/.buildkite/install-pnpm.sh"
       - /app/.buildkite/build.sh
     depends_on: "deps"
     retry:
