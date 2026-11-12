@@ -1,0 +1,41 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "dependencyDashboard": true,
+  "schedule": ["before 4am on monday"],
+  "packageRules": [
+    {
+      "description": "Majors: no PR, queue in dashboard for manual approval",
+      "matchUpdateTypes": ["major"],
+      "dependencyDashboardApproval": true,
+      "groupName": "major updates - approval required"
+    },
+    {
+      "description": "Dev tooling: patch/minor automerge on green CI, no extra wait",
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["patch", "minor"],
+      "groupName": "devDependencies non-major",
+      "automerge": true,
+      "platformAutomerge": true
+    },
+    {
+      "description": "Runtime deps: patch automerge on green CI",
+      "matchDepTypes": ["dependencies"],
+      "matchUpdateTypes": ["patch"],
+      "groupName": "runtime dependencies patch",
+      "automerge": true,
+      "platformAutomerge": true
+    },
+    {
+      "description": "Runtime deps: minor automerge on green CI, wait 3 days after release first",
+      "matchDepTypes": ["dependencies"],
+      "matchUpdateTypes": ["minor"],
+      "groupName": "runtime dependencies minor",
+      "automerge": true,
+      "platformAutomerge": true,
+      "minimumReleaseAge": "3 days"
+    }
+  ]
+}
